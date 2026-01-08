@@ -1,0 +1,59 @@
+replicaCount: 1
+
+image:
+  repository: apache/superset
+  tag: 4.1.3
+  pullPolicy: IfNotPresent
+
+bootstrapScript: |
+  #!/bin/bash
+  set -e
+  echo "Installing extra Python dependencies..."
+  pip install psycopg2-binary
+
+
+supersetNode:
+  connections:
+    redis_host: superset-redis-master
+    redis_port: "6379"
+    db_host: superset-postgresql
+    db_port: "5432"
+    db_user: superset
+    db_pass: superset
+    db_name: superset
+
+configOverrides:
+  secret: |
+    SECRET_KEY = "this_is_a_dev_secret_key_change_me"
+
+  superset_config: |
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    ENABLE_PROXY_FIX = True
+
+init:
+  enabled: true
+  createAdmin: true
+  adminUser:
+    username: admin
+    firstname: Superset
+    lastname: Admin
+    email: admin@superset.com
+    password: admin
+
+postgresql:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: latest
+  auth:
+    username: superset
+    password: superset
+    database: superset
+    
+redis:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/redis
+    tag: latest
